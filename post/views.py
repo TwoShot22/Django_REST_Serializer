@@ -2,39 +2,28 @@
 from post.models import Post
 from post.serializer import PostSerializer
 
-# Status에 따라 직접 Response를 처리할 것
-from django.http import Http404
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import viewsets
 
-# APIView를 상속받은 CBV
-from rest_framework.views import APIView
+# @action 처리
+from rest_framework import renderers
+from rest_framework.decorators import action
+from django.http import HttpResponse
+'''
+# ReadOnlyModelViewSet은 말 그대로 ListView, DetailView의 조회만 가능!
+class PostViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+'''
 
-from rest_framework import generics
-from rest_framework import mixins
-
-class PostList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+# ModelViewSet은 ListView와 DetailView에 대한 CRUD가 모두 가능!
+class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+    # @action(method=['post'])
+    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+    # Custom API
+    def highlight(self, request, *args, **kwargs):
+        return HttpResponse("얍")
 
-
-class PostDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-     # Update
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    # Destroy (Delete)
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
