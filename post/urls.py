@@ -1,12 +1,12 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
 from . import views
-
-# Django Rest Framework -> Router -> URL
-
-router = DefaultRouter()
-router.register('post', views.PostViewSet)
+from django.urls import path, include
+from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # 127.0.0.1:8000/post == ListView
+    path('post/',views.PostList.as_view()),
+    # 127.0.0.1:8000/post/<pk> == DetailView
+    path('post/<int:pk>/',views.PostDetail.as_view()),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
