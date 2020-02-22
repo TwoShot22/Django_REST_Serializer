@@ -10,24 +10,31 @@ from rest_framework import status
 # APIView를 상속받은 CBV
 from rest_framework.views import APIView
 
-class PostList(APIView):
-    def get(self, request):
-        posts = Post.objects.all()
-        serializer = PostSerializer(posts, many=True) # QuerySet 넘기기 (many=True 인자)
-        return Response(serializer.data) # 직접 Response Return 해주기 (serializer.data)
+from rest_framework import generics
+from rest_framework import mixins
 
-    def post(self, request):
-        serializer = PostSerializer(data=request.data)
-        if serializer.is_valid(): #직접 유효성 검사
-            serializer.save()
-            return Response(serializer.data, status = status.HTTP_201_CREATED)
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+class PostList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
 
-# PostList와 다르게, PK값을 받음
-class PostDetail(APIView):
-    def get_object(self, pk):
-        try:
-            return Post.object.get(pk=pk)
-        except Post.DoesNotExist:
-            raise Http404
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+class PostDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+     # Update
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    # Destroy (Delete)
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
