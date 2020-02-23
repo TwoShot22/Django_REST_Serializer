@@ -3,6 +3,7 @@ from post.models import Post
 from post.serializer import PostSerializer
 
 from rest_framework import viewsets
+from post.pagination import Mypagination
 
 # @action 처리
 from rest_framework import renderers
@@ -26,4 +27,3 @@ class PostViewSet(viewsets.ModelViewSet):
     # Custom API
     def highlight(self, request, *args, **kwargs):
         return HttpResponse("얍")
-
