@@ -1,4 +1,5 @@
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 
 from userpost.models import UserPost
 from userpost.serializer import UserSerializer
@@ -6,12 +7,14 @@ from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
 
 class UserPostViewSet(viewsets.ModelViewSet):
-    authentication_classes = [BasicAuthentication, SessionAuthentication]
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
     queryset = UserPost.objects.all()
     serializer_class = UserSerializer
 
     filter_backends = [SearchFilter]
-    # 어떤 Column을 기반으로 검색s할지 (Tuple)
+    # 어떤 Column을 기반으로 검색할지 (Tuple)
     search_fields = ('title', 'body',)
 
     def get_queryset(self):
